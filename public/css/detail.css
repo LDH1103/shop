@@ -1,0 +1,82 @@
+.product-image {
+    max-width: 100%;
+    height: auto;
+}
+
+.product-title {
+    font-size: 2rem;
+    font-weight: bold;
+}
+
+.price {
+    font-size: 1.5rem;
+    color: #28a745;
+    margin-bottom: 20px;
+}
+
+.description {
+    margin-top: 20px;
+    font-size: 1.2rem;
+}
+
+.add-to-cart {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 1.2rem;
+}
+
+.related-products {
+    margin: 20px 0; /* 상하 여백 */
+}
+
+.product-scroll-container {
+    display: flex; /* Flexbox로 가로 배열 */
+    overflow-x: auto; /* 가로 스크롤 활성화 */
+    padding: 10px 0; /* 상하 여백 */
+    scrollbar-width: thin; /* Firefox에서 스크롤바 두께 설정 */
+}
+
+/* 스크롤바 스타일 (WebKit 브라우저에서 작동) */
+.product-scroll-container::-webkit-scrollbar {
+    height: 8px; /* 스크롤바 높이 */
+}
+
+.product-scroll-container::-webkit-scrollbar-thumb {
+    background-color: #ccc; /* 스크롤바 색상 */
+    border-radius: 4px; /* 스크롤바 둥글게 */
+}
+
+.product-scroll-container::-webkit-scrollbar-track {
+    background: #f1f1f1; /* 스크롤바 배경색 */
+}
+
+.product-card {
+    min-width: 200px; /* 각 상품 카드의 최소 너비 */
+    margin-right: 10px; /* 카드 간격 */
+    text-align: center; /* 텍스트 가운데 정렬 */
+}
+
+.product-scroll-container {
+    display: flex; /* Flexbox로 가로 배열 */
+    overflow-x: auto; /* 가로 스크롤 활성화 */
+    padding: 10px 0; /* 상하 여백 */
+    scrollbar-width: thin; /* Firefox에서 스크롤바 두께 설정 */
+}
+
+.description-img {
+    width: 70%;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+hr {
+    background-color: #fff;
+    padding: 0;
+    margin: 80px;
+    border: 0;
+    height: 1px;
+    background-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0));
+}

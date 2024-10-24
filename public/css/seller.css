@@ -1,0 +1,85 @@
+/* max width */
+.listContainer {
+    /* min-width: 700px; */
+    max-width: 1000px;
+}
+/* /max width */
+
+/* 상하단 가로선 */
+.listContainer {
+    margin: 10px auto;
+    border-top: 1px solid #000000;
+    border-bottom: 1px solid #000000;
+    width: 80vw;
+    min-height: 50vh;
+}
+/* /상하단 가로선 */
+
+/* hr */
+hr:last-child {
+    display: none;
+}
+/* /hr */
+
+.product-name {
+    cursor: pointer;
+}
+
+/* 페이지네이션 스타일 */
+a {
+    color:black;
+}
+
+.pagination-container .pagination {
+    justify-content: center;
+}
+
+.pagination .page-link {
+    color: #007bff;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 5px;
+    transition: background-color 0.3s ease;
+}
+
+.pagination .page-link:hover {
+    background-color: #007bff;
+    color: rgb(0, 0, 0);
+}
+
+.pagination .page-item.active .page-link {
+    background-color: #007bff;
+    color: rgb(0, 0, 0);
+    border-color: #007bff;
+}
+
+/* 타이틀 스타일 */
+#shop_h2 {
+    font-size: 28px;
+    font-weight: 700;
+    color: #343a40;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.page-item {
+    margin: 0 10px; /* 좌우 여백을 10px로 설정하여 페이지 아이템 간 간격을 띄움 */
+}
+
+#descriptionImagesPreview {
+    display: flex; /* 플렉스 박스 사용 */
+    overflow-x: auto; /* 가로 스크롤 가능 */
+    white-space: nowrap; /* 줄바꿈 방지 */
+    align-items: flex-start; /* 아이템을 상단에 정렬 */
+}
+
+#descriptionImagesPreview img {
+    max-width: 150px; /* 최대 가로 길이 */
+    height: auto; /* 세로 길이 자동 조정 */
+    object-fit: contain; /* 비율 유지하면서 이미지 맞추기 */
+    margin-right: 10px; /* 이미지 간 간격 */
+}

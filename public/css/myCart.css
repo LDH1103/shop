@@ -1,0 +1,61 @@
+.cartContainer {
+    max-width: 700px; /* 최대 너비 800px */
+    margin: 0 auto; /* 중앙 정렬 */
+}
+
+.cart-title {
+    font-size: 24px; /* 글자 크기 */
+    font-weight: bold; /* 글자 두께 */
+    margin-bottom: 20px; /* 아래 여백 */
+    color: #333; /* 글자 색상 */
+    text-align: center; /* 중앙 정렬 */
+    text-decoration: underline; /* 밑줄 */
+}
+
+.cart-item {
+    border-bottom: 1px solid #ddd;
+    padding: 10px 0;
+}
+
+.cart-item img {
+    width: 100px;
+    height: auto;
+}
+
+.btnBox {
+    border: 1px solid black;
+    border-radius: 4px;
+    width: 7rem;
+    height: 2rem;
+    padding: 0.5rem;
+    line-height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center; /* 수평 중앙 정렬 */
+    gap: 2px;
+    user-select: none; /* 텍스트 선택 비활성화 */
+}
+
+.quantity {
+    border: 0;
+    color: var(--rds-color-bluegray-900, #212b36);
+    text-align: center;
+    font-size: 14px;
+    font-weight: 700;
+    padding: 0;
+    line-height: 17px;
+    vertical-align: middle;
+    width: 60px;
+}
+
+.quantityBtn {
+    width: 16px !important;
+    height: auto;
+    text-align: center;
+    /* background-size: cover; */
+    cursor: pointer;
+}
+
+.cartCheck {
+    margin-right: 5px;
+}

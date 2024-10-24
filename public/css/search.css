@@ -1,0 +1,35 @@
+/* 페이지네이션 스타일 */
+a {
+    color:black;
+}
+
+.pagination-container .pagination {
+    justify-content: center;
+}
+
+.pagination .page-link {
+    color: #007bff;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 5px;
+    transition: background-color 0.3s ease;
+}
+
+.pagination .page-link:hover {
+    background-color: #007bff;
+    color: rgb(0, 0, 0);
+}
+
+.pagination .page-item.active .page-link {
+    background-color: #007bff;
+    color: rgb(0, 0, 0);
+    border-color: #007bff;
+}
+
+.page-item {
+    margin: 0 10px; /* 좌우 여백을 10px로 설정하여 페이지 아이템 간 간격을 띄움 */
+}

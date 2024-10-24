@@ -1,0 +1,65 @@
+.nav-pills .nav-link {
+    color: #000000; /* 기본 텍스트 색상 */
+}
+
+.nav-pills .nav-link.active {
+    background-color: #000000; /* 활성화된 탭의 배경 색상 */
+}
+
+.nav-pills .nav-link:hover {
+    background-color: #0000001a; /* 마우스 오버 시 색상 변경 */
+    color: #000000;
+}
+
+/* 활성화된 탭에 hover 효과 제거 */
+.nav-pills .nav-link.active:hover {
+    background-color: #000000; /* 활성화된 탭의 배경 색상을 유지 */
+    color: #ffffff; /* 텍스트 색상 유지 */
+}
+
+/* 세로선 스타일 */
+.tab-line {
+    border-left: 1px solid #00000027; /* 세로선 색상 및 두께 */
+}
+
+/* 배송지 ---------------------------------------------------------- */
+.addresses-container {
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+}
+
+.address-card {
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    padding: 15px;
+    margin: 10px 0;
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: space-between;
+}
+
+.address-details {
+    flex-grow: 1;
+}
+
+.address-actions {
+    display: flex;
+    flex-direction: column;
+}
+
+.btn-edit,
+.btn-delete {
+    margin-top: 5px;
+    padding: 10px;
+    border-radius: 4px;
+}
+
+.hidden-address {
+    display: none;
+}
+/* 배송지 ---------------------------------------------------------- */
