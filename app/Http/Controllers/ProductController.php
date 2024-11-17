@@ -2,16 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use Exception;
+use App\Models\ReviewModel;
+use Illuminate\Support\Str;
+use App\Models\ProductModel;
 use Illuminate\Http\Request;
+use App\Models\CategoriesModel;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Session;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
 use Illuminate\Routing\Controller as BaseController;
-use App\Models\ProductModel;
-use App\Models\CategoriesModel;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class ProductController extends BaseController
@@ -21,27 +23,68 @@ class ProductController extends BaseController
         $this->middleware('ifNotSeller')->only(['create', 'createPost']);
     }
 
+    // -----------------------------------------------------------------------------------
+    // 함수명   : create()
+    // 설명     : 상품 등록 페이지를 반환하는 함수
+    //            모든 카테고리 목록을 전달하여 새로운 상품 등록 화면을 렌더링
+    //
+    // param    : 없음
+    //
+    // return   : View - 상품 등록 페이지
+    // -----------------------------------------------------------------------------------
     public function create() {
         $categories = CategoriesModel::all();
 
         return view('productCreate', compact('categories'));
     }
 
-    // 상품 등록
+    // -----------------------------------------------------------------------------------
+    // 함수명   : createPost()
+    // 설명     : 새로운 상품을 등록하는 함수
+    //            입력된 상품 정보와 이미지 데이터를 데이터베이스에 저장
+    //
+    // param    : Request $req - 클라이언트에서 전달한 요청 객체
+    //              - cat_id            : 카테고리 ID
+    //              - name              : 상품명
+    //              - price             : 가격
+    //              - descriptionImages : 상품 설명 이미지 배열
+    //              - img               : 상품 대표 이미지
+    //
+    // return   : RedirectResponse - 등록 성공 시 메인 페이지로 리다이렉트
+    //              - 성공 시: '상품이 등록되었습니다.' 알림 포함
+    //              - 실패 시: '시스템 에러가 발생하여 상품 등록에 실패했습니다.' 알림 포함
+    // -----------------------------------------------------------------------------------
     public function createPost(Request $req) {
         // $req->dd();
         $user_id = Auth::user()->user_id;
         $price   = str_replace(',', '', $req->price);
+        Log::debug('File size: ' . $req->file('img')->getSize());
+        Log::debug('File MIME type: ' . $req->file('img')->getMimeType());
 
         // 유효성 검사
         $rules = [
             'cat_id'              => 'required|numeric',
             'name'                => 'required|min:2|max:50',
             'descriptionImages'   => 'array',
-            'descriptionImages.*' => 'mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'img'                 => 'mimes:jpeg,png,jpg,gif,svg|max:2048'
+            'descriptionImages.*' => 'mimes:jpeg,png,jpg,gif,svg|max:10240',
+            'img'                 => 'mimes:jpeg,png,jpg,gif,svg|max:10240'
         ];
-        $req->validate($rules);
+
+        $messages = [
+            'cat_id.required'              => '카테고리를 입력해야 합니다.',
+            'name.required'                => '이름을 입력해야 합니다.',
+            'name.min'                     => '이름은 최소 :min 글자 이상이어야 합니다.',
+            'name.max'                     => '이름은 최대 :max 글자 이하여야 합니다.',
+            'descriptionImages.array'      => '설명 이미지는 배열 형식이어야 합니다.',
+            'descriptionImages.*.mimes'    => '설명 이미지는 jpeg, png, jpg, gif, svg 형식이어야 합니다.',
+            'descriptionImages.*.max'      => '설명 이미지는 최대 :maxKB를 초과할 수 없습니다.',
+            'descriptionImages.uploaded'   => '이미지 파일이 너무 큽니다. 최대 10MB까지 업로드할 수 있습니다.',
+            'img.mimes'                    => '대표 이미지는 jpeg, png, jpg, gif, svg 형식이어야 합니다.',
+            'img.max'                      => '대표 이미지는 최대 :maxKB를 초과할 수 없습니다.',
+            'img.uploaded'                 => '이미지 파일이 너무 큽니다. 최대 10MB까지 업로드할 수 있습니다.'
+        ];
+
+        $req->validate($rules, $messages);
 
         try {            
             DB::beginTransaction();
@@ -55,7 +98,6 @@ class ProductController extends BaseController
 
             // 이미지가 업로드되었는지 확인
             if ($req->file('img')) {
-                // Log::debug("if걸림");
                 $img = $req->file('img');
                 // 파일 이름 (작성자 PK + 현재 시간 + 확장자)
                 $imgName = $user_id . time() . '_thumbnail.' . $img->getClientOriginalExtension();
@@ -97,74 +139,109 @@ class ProductController extends BaseController
             return redirect()->back()->with('alert', '시스템 에러가 발생하여 상품 등록에 실패했습니다.\n잠시 후에 다시 시도해주세요.');
         }
 
-        return redirect()->route('main')->with('alert', '상품이 등록되었습니다.');
+        return redirect()->route('products.detail', ['id' => $product->pro_id])->with('alert', '상품이 등록되었습니다.');
     }
 
+    // -----------------------------------------------------------------------------------
+    // 함수명   : main()
+    // 설명     : 메인 페이지를 반환하는 함수
+    //            최신 상품 12개와 모든 카테고리를 조회하여 메인 페이지를 렌더링
+    //
+    // param    : 없음
+    //
+    // return   : View - 메인 페이지 (상품 및 카테고리 정보 포함)
+    // -----------------------------------------------------------------------------------
     public function main() {
         // 상품 정보를 가져옴
-        $products = 
-            ProductModel::select('pro_id', 'name', 'price', 'img')
-            ->where('status', '0')
-            ->orderBy('created_at', 'desc') // 랜덤 정렬
-            ->take(12) // 12개만 가져오기
-            ->get();
+        $products =
+            ProductModel::withAvg('reviews', 'rating')
+                ->where('status', '0')
+                ->orderBy('created_at', 'desc')
+                ->take(12)
+                ->get();
 
         $categories = CategoriesModel::get();
 
         return view('main', compact('products', 'categories'));
     }
 
-    // 메인페이지 카테고리
+    // -----------------------------------------------------------------------------------
+    // 함수명   : productGet()
+    // 설명     : 특정 카테고리에 해당하는 상품을 JSON 형식으로 반환하는 함수
+    //            페이지네이션 적용 (한 페이지에 12개 표시)
+    //
+    // param    : Request $req - 클라이언트에서 전달한 요청 객체
+    //              - categoryId : 카테고리 ID (0일 경우 전체 상품)
+    //              - page       : 페이지 번호 (기본값 1)
+    //
+    // return   : JsonResponse - 해당 카테고리 상품 목록 JSON
+    // -----------------------------------------------------------------------------------
     public function productGet(Request $req)
     {
         // Log::debug($req);
-
+    
         // 카테고리 PK 가져오기
         $categoryId = $req->categoryId;
         $page = $req->page ?? 1; // 페이지 번호가 없을 경우 기본값 1
         $perPage = 12; // 페이지당 표시할 상품 수
         $skip = ($page - 1) * $perPage; // 건너뛸 레코드 수
-
+    
         // 전체일 경우
         if ($categoryId === '0') {
             $products = 
-                ProductModel::select('pro_id', 'name', 'price', 'img')
-                ->where('status', '0')
-                ->orderBy('created_at', 'desc')
-                ->skip($skip)
-                ->take($perPage)
-                ->get();
+                ProductModel::withAvg('reviews', 'rating')
+                    ->where('status', '0')
+                    ->orderBy('created_at', 'desc')
+                    ->skip($skip)
+                    ->take($perPage)
+                    ->get();
         } else {
             // 특정 카테고리의 상품 조회
             $products = 
-                ProductModel::where('cat_id', $categoryId)
-                ->where('status', '0')
-                ->orderBy('created_at', 'desc')
-                ->skip($skip)
-                ->take($perPage)
-                ->get();
+                ProductModel::withAvg('reviews', 'rating')
+                    ->where('cat_id', $categoryId)
+                    ->where('status', '0')
+                    ->orderBy('created_at', 'desc')
+                    ->skip($skip)
+                    ->take($perPage)
+                    ->get();
         }
-
+    
         // 상품 데이터 가공
-        $productData = $products->map(function($product) {
+        $productData = $products->map(function ($product) {
             return [
                 'detail'    => route('products.detail', ['id' => $product->pro_id]),
-                'name'  => $product->name,
-                'price' => number_format($product->price),
-                'img'   => asset($product->img),
+                'name'      => $product->name,
+                'price'     => number_format($product->price),
+                'img'       => asset($product->img),
+                'avg_rating'=> number_format($product->reviews_avg_rating ?? 0, 1), // 평균 별점 추가
             ];
         });
-
+    
         return response()->json([
             'success' => true,
             'data'    => $productData,
         ]);
     }
 
-    // 상세 페이지
+    // -----------------------------------------------------------------------------------
+    // 함수명   : detail()
+    // 설명     : 특정 상품의 상세 정보를 반환하는 함수
+    //            해당 상품의 관련 상품도 함께 반환
+    //
+    // param    : int $id - 조회할 상품의 고유 ID
+    //
+    // return   : View - 상품 상세 페이지
+    // -----------------------------------------------------------------------------------
     public function detail($id) {
         // 상품정보 가져오기
         $product = ProductModel::findOrFail($id);
+
+        // 별점 가져오기
+        $rating = ReviewModel::where('pro_id', $id)->avg('rating');
+        $reviews = ReviewModel::where('pro_id', $id)
+            ->orderBy('created_at', 'desc')
+            ->paginate(5);
 
         // 추천상품 가져오기
         $categoryId = $product->cat_id;
@@ -177,14 +254,39 @@ class ProductController extends BaseController
             ->get();
 
         return view('detail', [        
-            'product' => $product,
+            'product'         => $product,
             'relatedProducts' => $relatedProducts,
+            'rating'          => $rating,
+            'reviews'         => $reviews,
         ]);
     }
 
-    // 수정
+    // -----------------------------------------------------------------------------------
+    // 함수명   : update()
+    // 설명     : 특정 상품 정보를 수정하는 함수
+    //            입력된 정보로 상품 데이터와 이미지를 업데이트하고, 기존 이미지를 삭제
+    //
+    // param    : Request $req - 클라이언트에서 전달한 요청 객체
+    //              - pro_id            : 상품 ID
+    //              - cat_id            : 카테고리 ID
+    //              - name              : 상품명
+    //              - price             : 가격
+    //              - descriptionImages : 상품 설명 이미지 배열
+    //              - img               : 상품 대표 이미지
+    //
+    // return   : JsonResponse - 수정 성공 또는 실패 메시지
+    // -----------------------------------------------------------------------------------
     public function update(Request $req) {
-        // $req->dd();
+        if ($req->hasFile('descriptionImages')) {
+            foreach ($req->file('descriptionImages') as $file) {
+                Log::debug('Original Name: ' . $file->getClientOriginalName());
+                Log::debug('File Size: ' . $file->getSize());
+                Log::debug('MIME Type: ' . $file->getMimeType());
+                Log::debug('Error Code: ' . $file->getError());
+            }
+        } else {
+            Log::error('No files uploaded in descriptionImages');
+        }
         // 유효성 검사
         $rules = [
             'pro_id'              => 'required|numeric',
@@ -193,10 +295,25 @@ class ProductController extends BaseController
             'price'               => 'required',
             'status'              => 'required|max:1',
             'descriptionImages'   => 'array',
-            'descriptionImages.*' => 'mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'img'                 => 'mimes:jpeg,png,jpg,gif,svg|max:2048'
+            'descriptionImages.*' => 'mimes:jpeg,png,jpg,gif,svg|max:10240',
+            'img'                 => 'mimes:jpeg,png,jpg,gif,svg|max:10240'
         ];
-        $req->validate($rules);
+
+        $messages = [
+            'cat_id.required'              => '카테고리를 입력해야 합니다.',
+            'name.required'                => '이름을 입력해야 합니다.',
+            'name.min'                     => '이름은 최소 :min 글자 이상이어야 합니다.',
+            'name.max'                     => '이름은 최대 :max 글자 이하여야 합니다.',
+            'descriptionImages.array'      => '설명 이미지는 배열 형식이어야 합니다.',
+            'descriptionImages.*.mimes'    => '설명 이미지는 jpeg, png, jpg, gif, svg 형식이어야 합니다.',
+            'descriptionImages.*.max'      => '설명 이미지는 최대 :maxKB를 초과할 수 없습니다.',
+            'descriptionImages.uploaded'   => '이미지 파일이 너무 큽니다. 최대 10MB까지 업로드할 수 있습니다.',
+            'img.mimes'                    => '대표 이미지는 jpeg, png, jpg, gif, svg 형식이어야 합니다.',
+            'img.max'                      => '대표 이미지는 최대 :maxKB를 초과할 수 없습니다.',
+            'img.uploaded'                 => '이미지 파일이 너무 큽니다. 최대 10MB까지 업로드할 수 있습니다.'
+        ];
+
+        $req->validate($rules, $messages);
 
         DB::beginTransaction();
         try {            
@@ -273,7 +390,16 @@ class ProductController extends BaseController
         }
     }
 
-    // 삭제
+    // -----------------------------------------------------------------------------------
+    // 함수명   : delete()
+    // 설명     : 선택한 상품을 삭제하는 함수
+    //            소프트 딜리트를 사용하여 데이터베이스에서 상품을 비활성화
+    //
+    // param    : Request $req - 클라이언트에서 전달한 요청 객체
+    //              - proIds : 삭제할 상품 ID 배열
+    //
+    // return   : JsonResponse - 삭제 성공 또는 실패 메시지
+    // -----------------------------------------------------------------------------------
     public function delete(Request $req) {
         Log::debug($req);
         $req->validate([
@@ -307,7 +433,17 @@ class ProductController extends BaseController
         }
     }
 
-    // 검색
+    // -----------------------------------------------------------------------------------
+    // 함수명   : search()
+    // 설명     : 특정 검색어 및 카테고리에 해당하는 상품을 검색하여 반환하는 함수
+    //            검색어와 카테고리를 기반으로 상품을 필터링하고 페이지네이션 적용
+    //
+    // param    : Request $req - 클라이언트에서 전달한 요청 객체
+    //              - query    : 검색어
+    //              - category : 카테고리 ID
+    //
+    // return   : View - 검색 결과 페이지 (검색된 상품 목록 포함)
+    // -----------------------------------------------------------------------------------
     public function search(Request $req)
     {
         // 유효성 검사

@@ -21,15 +21,15 @@ class PaymentModel extends Model
 
     public function order()
     {
-        return $this->belongsTo(OrderModel::class);
+        return $this->belongsTo(OrderModel::class, 'ord_id', 'ord_id');
     }
 
     public function getStatusNameAttribute()
     {
         switch ($this->status) {
-            case '0':
+            case 'P':
                 return '결제완료';
-            case '1':
+            case 'R':
                 return '환불';
         }
     }

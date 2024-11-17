@@ -43,15 +43,16 @@
             @enderror
         </div>
 
-        <div class="form-group">
-            <label for="seller">판매자로 가입</label>
-            <input type="checkbox" id="seller" name="seller">
-            @error('seller')
-                <small class="text-danger">{{ $message }}</small>
-            @enderror
+        <div class="form-group d-flex align-items-center justify-content-between">
+            <div>
+                <label for="seller" class="mb-0">판매자로 가입</label>
+                <input type="checkbox" id="seller" name="seller" class="ml-2">
+                @error('seller')
+                    <small class="text-danger d-block">{{ $message }}</small>
+                @enderror
+            </div>
+            <button type="submit" class="btn btn-outline-primary">회원가입</button>
         </div>
-
-        <button type="submit" class="btn btn-primary">회원가입</button>
     </form>
 
     <div class="mt-3">

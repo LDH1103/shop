@@ -16,7 +16,8 @@
             @else
                 <div class="d-flex justify-content-between align-items-center mb-2">
                     <div>
-                        <input type="checkbox" class="cartCheck" id="selectAll" onchange="selectAll(this); calculateTotal();"> 전체선택
+                        <input type="checkbox" class="cartCheck" id="selectAll" onchange="selectAll(this); calculateTotal();">
+                        <label for="selectAll">전체선택</label>
                     </div>
                     <button class="btn btn-outline-danger" onclick="delSelectedItems()">선택 항목 삭제</button>
                 </div>
@@ -54,7 +55,8 @@
             @if (!empty($cartItems))
                 <div class="d-flex justify-content-between align-items-center mb-2">
                     <div>
-                        <input type="checkbox" class="cartCheck" id="selectAll" onchange="selectAll(this); calculateTotal();"> 전체선택
+                        <input type="checkbox" class="cartCheck" id="selectAll" onchange="selectAll(this); calculateTotal();">
+                        <label for="selectAll">전체선택</label>
                     </div>
                     <button class="btn btn-outline-danger" onclick="delSelectedItems()">선택 항목 삭제</button>
                 </div>

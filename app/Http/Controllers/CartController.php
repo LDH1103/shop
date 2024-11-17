@@ -12,10 +12,20 @@ use Illuminate\Support\Facades\Log;
 use App\Models\User;
 use App\Models\CartModel;
 use App\Models\ProductModel;
+use Exception;
 
 class CartController extends BaseController
 {
-    // 장바구니
+    // -----------------------------------------------------------------------------------
+    // 함수명   : myCart()
+    // 설명     : 사용자의 장바구니를 조회하는 함수
+    //            로그인한 경우 DB에서, 비로그인한 경우 세션에서 장바구니 데이터를 가져옴
+    //            소프트 삭제된 제품이 장바구니에 포함된 경우 해당 항목을 필터링
+    //
+    // param    : 없음
+    //
+    // return   : View - 장바구니 페이지 반환
+    // -----------------------------------------------------------------------------------
     public function myCart() {
         if (Auth::check()) {
             // 로그인한 사용자
@@ -58,7 +68,17 @@ class CartController extends BaseController
         }
     }
 
-    // 장바구니 넣기
+    // -----------------------------------------------------------------------------------
+    // 함수명   : addCart()
+    // 설명     : 사용자가 선택한 상품을 장바구니에 추가하는 함수
+    //            로그인한 경우 DB에, 비로그인한 경우 세션에 장바구니 데이터를 저장
+    //
+    // param    : Request $req - 클라이언트에서 전달한 상품 ID와 수량 요청 객체
+    //              - proId    : 장바구니에 추가할 상품의 고유 ID
+    //              - quantity : 상품 수량
+    //
+    // return   : JsonResponse - 장바구니 추가 성공 또는 실패 메시지를 JSON 형식으로 반환
+    // -----------------------------------------------------------------------------------
     public function addCart(Request $req) {
         $req->validate([
             'proId'    => 'required|exists:product,pro_id',
@@ -111,7 +131,17 @@ class CartController extends BaseController
         return response()->json(['msg' => '장바구니에 상품이 추가되었습니다.<br>장바구니로 이동하시겠습니까?'], 200);
     }
 
-    // 장바구니 업데이트
+    // -----------------------------------------------------------------------------------
+    // 함수명   : uptCart()
+    // 설명     : 사용자의 장바구니에 있는 상품의 수량을 업데이트하는 함수
+    //            로그인한 경우 DB에, 비로그인한 경우 세션에 저장된 수량을 수정
+    //
+    // param    : Request $req - 클라이언트에서 전달한 상품 ID와 수량 요청 객체
+    //              - proId    : 수정할 상품의 고유 ID
+    //              - quantity : 수정할 수량
+    //
+    // return   : JsonResponse - 장바구니 업데이트 성공 또는 실패 메시지를 JSON 형식으로 반환
+    // -----------------------------------------------------------------------------------
     public function uptCart(Request $req) {
         $req->validate([
             'proId'    => 'required|exists:product,pro_id',
@@ -154,7 +184,16 @@ class CartController extends BaseController
         }
     }
 
-    // 장바구니에서 상품 삭제
+    // -----------------------------------------------------------------------------------
+    // 함수명   : delCart()
+    // 설명     : 장바구니에서 선택한 상품을 삭제하는 함수
+    //            로그인한 경우 DB에서, 비로그인한 경우 세션에서 상품을 삭제
+    //
+    // param    : Request $req - 클라이언트에서 전달한 상품 ID 배열 요청 객체
+    //              - proIds   : 삭제할 상품들의 고유 ID 배열
+    //
+    // return   : JsonResponse - 장바구니 삭제 성공 또는 실패 메시지를 JSON 형식으로 반환
+    // -----------------------------------------------------------------------------------
     public function delCart(Request $req) {
         Log::debug($req);
         $req->validate([

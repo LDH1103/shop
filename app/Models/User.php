@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use App\Models\CartModel;
 use App\Models\AddressModel;
-
+use App\Models\ReviewModel;
 class User extends Authenticatable
 {
     use HasFactory, SoftDeletes;
@@ -33,5 +33,10 @@ class User extends Authenticatable
     public function addresses()
     {
         return $this->hasMany(AddressModel::class, 'user_id');
+    }
+
+    public function reviews()
+    {
+        return $this->hasMany(ReviewModel::class, 'user_id');
     }
 }

@@ -9,46 +9,107 @@
 @section('content')
 <div class="container mt-4">
     <h2 class="shopTitle">마이페이지</h2>
-    {{-- @if (!session('pwConfirmed'))
-    <div class="container mt-4" id="shop_div">
-        <form method="POST" action="{{ route('users.mypage.verify') }}">
-            @csrf
-            <div class="form-group">
-                <label for="password">비밀번호</label>
-                <input type="password" class="form-control" id="pw" name="pw" required>
-                @error('pw')
-                <div class="alert alert-danger mt-2">
-                    {{ $message }}
-                </div>
-            @enderror
-            </div>
-            <div class="text-right">
-                <button type="submit" class="btn btn-primary">확인</button>
-            </div>
-        </form>
-    </div>
-    @else --}}
     <div class="container mt-4 tab-container">
         <div class="row">
             <div class="col-md-3">
                 <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
                     <a class="nav-link active" id="v-pills-order-history-tab" data-toggle="pill" href="#v-pills-order-history" role="tab" aria-controls="v-pills-order-history" aria-selected="false">주문 내역</a>
-                    <a class="nav-link" id="v-pills-user-info-tab" data-toggle="pill" href="#v-pills-user-info" role="tab" aria-controls="v-pills-user-info" aria-selected="true">내정보</a>
+                    <a class="nav-link" id="v-pills-user-info-tab" data-toggle="pill" href="#v-pills-user-info" role="tab" aria-controls="v-pills-user-info" aria-selected="true">내 정보</a>
                     <a class="nav-link" id="v-pills-shipping-info-tab" data-toggle="pill" href="#v-pills-shipping-info" role="tab" aria-controls="v-pills-shipping-info" aria-selected="false">배송지 관리</a>
-                    <a class="nav-link" id="v-pills-other-settings-tab" data-toggle="pill" href="#v-pills-other-settings" role="tab" aria-controls="v-pills-other-settings" aria-selected="false">기타 설정</a>
                 </div>
             </div>
             <div class="col-md-9 tab-line">
                 <div class="tab-content" id="v-pills-tabContent">
                     <div class="tab-pane fade show active" id="v-pills-order-history" role="tabpanel" aria-labelledby="v-pills-order-history-tab">
-                        <p>주문 내역</p>
+                        @if($orders->isEmpty())
+                            <p>주문 내역이 없습니다.</p>
+                        @else
+                            @foreach($orders as $order)
+                                <div class="order-card" id="order-{{ $order->payment->merchant_uid }}" data-merchant-uid="{{ $order->payment->merchant_uid }}">
+                                    <p class="order-info"><strong>주문 일자 : </strong> {{ \Carbon\Carbon::parse($order->created_at)->format('Y-m-d H:i') }}</p>
+                                    <p class="order-info"><strong>수령인 : </strong> {{ $order->address->recipient }}</p>
+                                    <p class="order-info"><strong>배송지 : </strong> {{ $order->address->address . ', ' . $order->address->detailAddress }}</p>
+                                    <p class="order-info"><strong>상태 : </strong> {{ $order->payment->status_name }}</p>
+                                    
+                                    <h6 class="order-items-title">주문 상품</h6>
+                                    
+                                    @foreach($order->orderItems as $item)
+                                        <div class="order-item">
+                                            <div class="order-item-image">
+                                                <img src="{{ asset($item->product->img) }}" alt="상품 이미지" class="product-thumbnail">
+                                            </div>
+                                            <div class="order-item-details">
+                                                <span><a href="{{ route('products.detail', ['id' => $item->product->pro_id]) }}">{{ $item->product->name }}</a>, {{ $item->quantity }}개</span>
+                                                <br>
+                                                <span>{{ number_format($item->price) }}원</span>
+                                            </div>
+                                            <div class="order-item-review">
+                                                <button type="button" class="btn btn-outline-secondary btn-review" onclick="location.href='{{ route('reviews.page', ['pro_id' => $item->product->pro_id, 'ord_id' => $item->ord_id]) }}'">리뷰 작성</button>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                    <div class="order-actions">
+                                        <p class="order-info"><strong>총 결제 금액 : </strong> {{ number_format($order->payment->price) }}원</p>
+                                        @if($order->payment->status == 'P')
+                                            <button type="button" class="btn btn-outline-danger btn-cancel" onclick="cancelOrder('{{ $order->payment->merchant_uid }}', '{{ $order->payment->price }}')">주문 취소</button>
+                                        @endif
+                                    </div>
+                                </div>
+                            @endforeach
+                        @endif
                     </div>
                     <div class="tab-pane fade" id="v-pills-user-info" role="tabpanel" aria-labelledby="v-pills-user-info-tab">
-                        <p>내정보</p>
+                        <div id="passwordCheckSection" class="info-section" style="display: none;">
+                            <h5>비밀번호 확인</h5>
+                            <form id="passwordCheckForm">
+                                <div class="form-group">
+                                    <label for="password">현재 비밀번호</label>
+                                    <input type="password" id="password" name="password" class="form-control" required>
+                                </div>
+                                <small id="passwordCheckError" class="text-danger" style="display: none;">비밀번호가 일치하지 않습니다.</small>
+                                <div class="btn-container">
+                                    <button type="button" class="btn btn-outline-primary" id="checkPasswordButton">확인</button>
+                                </div>
+                            </form>
+                        </div>
+                    
+                        <div id="userInfo" class="info-section" style="display: none; margin-top: 20px;">
+                            <h5>내 정보</h5>
+                            <ul class="user-info-list">
+                                <li><strong>이름:</strong> <span id="userName"></span></li>
+                                <li><strong>이메일:</strong> <span id="userEmail"></span></li>
+                                <li><strong>가입일:</strong> <span id="userCreatedAt"></span></li>
+                            </ul>
+                        </div>
+                    
+                        <div id="passwordChangeSection" class="info-section" style="display: none; margin-top: 20px;">
+                            <h5>비밀번호 변경</h5>
+                            <form id="passwordChangeForm">
+                                <div class="form-group">
+                                    <label for="newPassword">새 비밀번호</label>
+                                    <input type="password" id="newPassword" name="new_password" class="form-control" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="confirmPassword">새 비밀번호 확인</label>
+                                    <input type="password" id="confirmPassword" name="confirm_password" class="form-control" required>
+                                </div>
+                                <div class="btn-container">
+                                    <button type="button" class="btn btn-outline-primary" id="changePasswordButton">변경</button>
+                                </div>
+                            </form>
+                        </div>
+                    
+                        <!-- Hidden Data -->
+                        <span data-isSocialUser="{{ $user->social ? 'true' : 'false' }}" style="display: none;"></span>
+                        <span data-userName="{{ $user->name }}" style="display: none;"></span>
+                        <span data-userEmail="{{ $user->email }}" style="display: none;"></span>
+                        <span data-userCreatedAt="{{ $user->created_at->format('Y-m-d H:i') }}" style="display: none;"></span>
                     </div>
                     <div class="tab-pane fade" id="v-pills-shipping-info" role="tabpanel" aria-labelledby="v-pills-shipping-info-tab">
                         @if($addresses->isEmpty())
-                            배송지가 없습니다.
+                            <div id="addressList">
+                                <p>배송지가 없습니다.</p>
+                            </div>
                         @else
                             <div id="addressList">
                                 @foreach($addresses as $address)
@@ -60,7 +121,7 @@
                                         <span>{{ $address->default ? '기본 배송지' : '' }}</span>
                                         <span class="hidden-address hidden-postcode" data-postcode="{{ $address->postcode }}"></span>
                                         <span class="hidden-address hidden-extraAddress" data-extraAddress="{{ $address->extraAddress }}"></span>
-                                        <span class="hidden-address hidden-addressPk" data-addressPk="{{ $address->add_id }}"></span>
+                                        <span class="hidden-address hidden-addressId" data-addressId="{{ $address->add_id }}"></span>
                                     </div>
                                     <div class="address-actions">
                                         <button data-id="{{ $address->id }}" class="btn btn-outline-primary btn-edit">수정</button>
@@ -75,9 +136,6 @@
                                 배송지 추가하기
                             </button>
                         </div>
-                    </div>
-                    <div class="tab-pane fade" id="v-pills-other-settings" role="tabpanel" aria-labelledby="v-pills-other-settings-tab">
-                        <p>기타</p>
                     </div>
                 </div>
             </div>
@@ -191,7 +249,7 @@
                                 <input type="checkbox" class="form-check-input" id="edit_default" name="default">
                                 <label class="form-check-label" for="edit_default">기본 배송지로 저장</label>
                             </div>
-                            <input type="hidden" id="edit_addId" name="addId" value="">
+                            <input type="hidden" id="edit_addressId" name="address_id" value="">
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">닫기</button>

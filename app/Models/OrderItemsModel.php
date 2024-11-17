@@ -11,7 +11,7 @@ use App\Models\ProductModel;
 class OrderItemsModel extends Model
 {
     use HasFactory, SoftDeletes;
-    protected $table = 'order';
+    protected $table = 'order_items';
     protected $primaryKey = 'ord_item_id';
     protected $fillable = [
         'ord_id',
@@ -22,11 +22,11 @@ class OrderItemsModel extends Model
 
     public function order()
     {
-        return $this->belongsTo(OrderModel::class);
+        return $this->belongsTo(OrderModel::class, 'ord_id', 'ord_id');
     }
 
     public function product()
     {
-        return $this->belongsTo(ProductModel::class);
+        return $this->belongsTo(ProductModel::class, 'pro_id', 'pro_id')->withTrashed();
     }
 }

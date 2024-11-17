@@ -25,7 +25,8 @@
     @if(session('alert'))
         <script>
             Swal.fire({
-                text: '{{ session('alert') }}',
+                // text: '{{ session('alert') }}',
+                html: '{!! session('alert') !!}',
                 icon: 'info',
                 confirmButtonText: '확인'
             });
@@ -63,6 +64,9 @@
                 </li>
             @else
                 <li class="nav-item">
+                    <a class="nav-link" href="{{ route('orders.lookup') }}">비회원 주문조회</a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link" href="{{ route('users.login') }}">로그인</a>
                 </li>
                 <li class="nav-item">
@@ -77,9 +81,14 @@
     </nav>
     <!-- 네비 끝 -->
 
+    <span class="mobile-alert">
+        이 프로젝트는 PC 환경에 최적화되어 있습니다.
+        <br>
+        모바일 환경에서는 정상적으로 동작하지 않을 수 있습니다.
+    </span>
+
     @yield('content')
-    <!-- jQuery and Bootstrap JS -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
@@ -87,6 +96,18 @@
     <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
     <script src="{{ asset('js/common.js') }}"></script>
     <script src="{{ asset('js/sweetAlert.js') }}"></script>
+    <!-- 아임포트 api -->
+    {{-- <script src="https://cdn.iamport.kr/v1/iamport.js"></script> --}}
+    <!-- iamport.payment.js -->
+    <script type="text/javascript" src="https://cdn.iamport.kr/js/iamport.payment-1.2.0.js"></script>
     @yield('js')
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+            if (isMobile) {
+                document.querySelector('.mobile-alert').style.display = 'block';
+            }
+        });
+    </script>
 </body>
 </html>

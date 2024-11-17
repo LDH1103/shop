@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use App\Models\CategoriesModel;
-
+use App\Models\ReviewModel;
 class ProductModel extends Model
 {
     use HasFactory, SoftDeletes;
@@ -27,6 +27,11 @@ class ProductModel extends Model
     public function category()
     {
         return $this->belongsTo(CategoriesModel::class, 'cat_id');
+    }
+
+    public function reviews()
+    {
+        return $this->hasMany(ReviewModel::class, 'pro_id', 'pro_id');
     }
 
     public function getStatusNameAttribute()

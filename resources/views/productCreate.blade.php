@@ -6,7 +6,15 @@
 
     <form method="POST" action="{{ route('products.create') }}" enctype="multipart/form-data">
         @csrf
-
+        @if ($errors->any())
+        <div class="alert alert-danger">
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
         <div class="form-group">
             <label for="category" class="form-label" id="shop_label">카테고리</label>
             <select class="form-control" id="category" name="cat_id" required value="{{ old('cat_id') }}">
@@ -41,7 +49,7 @@
             <label for="img" id="shop_label">썸네일 이미지</label>
             <input type="file" class="form-control-file" id="img" name="img" accept="image/jpeg,image/png,image/jpg,image/gif,image/svg+xml" onchange="previewImage(event)">
             @error('img')
-            <small class="text-danger">{{ $message }}</small>
+                <small class="text-danger">{{ $message }}</small>
             @enderror
         </div>
 
@@ -55,7 +63,7 @@
             <label for="descriptionImages" id="shop_label">상품 설명 이미지 (최대 5개)</label>
             <input type="file" class="form-control-file" id="descriptionImages" name="descriptionImages[]" accept="image/jpeg,image/png,image/jpg,image/gif,image/svg+xml" multiple onchange="previewDescriptionImages(event)">
             @error('descriptionImages')
-            <small class="text-danger">{{ $message }}</small>
+                <small class="text-danger">{{ $message }}</small>
             @enderror
         </div>
         

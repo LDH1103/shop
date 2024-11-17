@@ -1,3 +1,10 @@
+.mobile-alert {
+    display: none;  
+    color:red; 
+    text-align: center; 
+    margin-top: 15px;
+}
+
 .shopTitle {
     font-size: 24px; /* 글자 크기 */
     font-weight: bold; /* 글자 두께 */

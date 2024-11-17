@@ -66,7 +66,9 @@
 
     {{-- 로딩중 표시 --}}
     <div id="loading" style="display: none;">
-        <img src="https://i.gifer.com/ZZ5H.gif" alt="Loading..." width="50">
+        <div class="loading-background">
+            <img src="https://i.gifer.com/ZZ5H.gif" alt="Loading..." width="50">
+        </div>
     </div>
 
     <div class="row" id="product_list_container">

@@ -7,8 +7,10 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\ReviewController;
 use App\Http\Middleware\RedirectIfAuthenticated;
 use Laravel\Socialite\Facades\Socialite;
+use Illuminate\Support\Facades\Auth;
 
 // Route::get('/', function () {
 //     return view('main');
@@ -38,11 +40,19 @@ Route::post('/users/register', [UserController::class, 'registerPost']);// 회�
 Route::post('/users/login', [UserController::class, 'loginPost']);// 로그인
 Route::post('/users/logout', [UserController::class, 'logout'])->name('users.logout');// 로그아웃
 Route::get('/users/mypage', [UserController::class, 'mypage'])->name('users.mypage'); // 마이페이지
-Route::post('/users/mypage/verify', [UserController::class, 'verifyPassword'])->name('users.mypage.verify'); // 마이페이지 접근시 비밀번호 재확인
+// Route::post('/users/mypage/verify', [UserController::class, 'verifyPassword'])->name('users.mypage.verify'); // 마이페이지 접근시 비밀번호 재확인
+Route::post('/mypage/password/check', [UserController::class, 'checkPassword'])->name('mypage.checkPassword'); // 마이페이지 내정보 접근시 비밀번호 재확인
+Route::post('/mypage/password/change', [UserController::class, 'changePassword'])->name('mypage.changePassword'); // 비밀번호 변경
+Route::get('/users/address', [UserController::class, 'getAddress'])->name('users.getAddress');// 배송지 불러오기
 Route::post('/users/addAddress', [UserController::class, 'addAddress'])->name('users.addAddress');// 배송지 추가
 Route::put('/users/editAddress', [UserController::class, 'editAddress'])->name('users.editAddress');// 배송지 수정
 Route::delete('/users/deleteAddress', [UserController::class, 'deleteAddress'])->name('users.deleteAddress');// 배송지 삭제
 // 회원 --------------------------------------------------------------
+
+// 비회원 --------------------------------------------------------------
+Route::get('/orders/lookup', [OrderController::class, 'lookup'])->name('orders.lookup');// 비회원 주문조회 페이지
+Route::post('/orders/lookup', [OrderController::class, 'lookupResult'])->name('orders.lookupResult');// 비회원 주문조회
+// 비회원 --------------------------------------------------------------
 
 // 판매자 -------------------------------------------------------------
 Route::get('/sellers/main', [SellerController::class, 'seller'])->name('sellers.main');// 판매자 페이지
@@ -59,7 +69,14 @@ Route::delete('/carts/delete', [CartController::class, 'delCart'])->name('carts.
 
 // 구매 --------------------------------------------------------------
 Route::post('/orders/checkout', [OrderController::class, 'checkout'])->name('orders.checkout');// 결제 페이지
+Route::post('/payments/success', [PaymentController::class, 'storeOrders'])->name('payments.success');// 결제 성공
+Route::post('/payments/cancel', [PaymentController::class, 'cancelOrder'])->name('payments.cancel');// 주문 취소
 // 구매 --------------------------------------------------------------
+
+// 리뷰 --------------------------------------------------------------
+Route::get('/reviews/create', [ReviewController::class, 'createReviewPage'])->name('reviews.page');// 리뷰 작성 페이지
+Route::post('/reviews/create', [ReviewController::class, 'createReview'])->name('reviews.create');// 리뷰 작성
+// 리뷰 --------------------------------------------------------------
 
 
 Auth::routes();

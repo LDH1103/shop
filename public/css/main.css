@@ -1,3 +1,55 @@
 #card_img {
     height: 250px;
 }
+
+.rating {
+    float: none;
+    width: 120px;
+    display: flex;
+    margin-bottom: 8px;
+}
+
+.rating__label {
+    width: 12px;
+    overflow: hidden;
+}
+
+.rating__label .star-icon {
+    width: 12px;
+    height: 24px;
+    display: block;
+    position: relative;
+    left: 0;
+    background-image: url('https://velog.velcdn.com/images/jellykelly/post/9957327f-f358-4c25-9989-5bb3dd5755d6/image.svg');
+    background-repeat: no-repeat;
+    background-size: 24px;
+}
+
+.rating__label .star-icon.filled {
+    background-image: url('https://velog.velcdn.com/images/jellykelly/post/10caf033-b0ef-4d58-804b-6e33395e4ea5/image.svg');
+}
+
+.rating__label--full .star-icon {
+    background-position: right;
+}
+
+.rating__label--half .star-icon {
+    background-position: left;
+}
+
+#loading {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999;
+}
+
+.loading-background {
+    background-color: rgba(0, 0, 0, 0.185);
+    padding: 10px 20px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}

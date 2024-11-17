@@ -1,0 +1,64 @@
+.centered-div {
+    display: flex;
+    justify-content: center; /* 수평 중앙 정렬 */
+}
+
+#orderId {
+    width: 300px;
+    margin-right: 10px;
+}
+
+.order-card {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+}
+
+.order-info {
+    font-size: 14px;
+    margin-bottom: 5px;
+}
+
+.order-items-title {
+    font-size: 16px;
+    font-weight: bold;
+    margin-top: 10px;
+    margin-bottom: 5px;
+}
+
+.order-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.order-item-image {
+    width: 50px;
+    height: 50px;
+    overflow: hidden;
+    margin-right: 15px;
+}
+
+.product-thumbnail {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.order-item-details {
+    font-size: 14px;
+}
+
+#result {
+    margin: 20px;
+}
+
+.order-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
